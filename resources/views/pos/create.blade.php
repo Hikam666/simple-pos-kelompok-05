@@ -7,6 +7,7 @@
 
 <div x-data="{
     cart: [],
+    selectedProductId: null,
     addToCart(id, name, price) {
         this.cart.push({ id, name, price });
     },
@@ -20,8 +21,11 @@
     {{-- Grid Produk --}}
     <div class="grid grid-cols-3 gap-4">
     @foreach ($products as $product)
-    <div class="border rounded-md p-3 cursor-pointer"
-        @click="addToCart({{ $product->id }}, '{{ $product->name }}', {{ $product->price }})">
+    <div
+    class="border rounded-md p-3 cursor-pointer transition-all"
+    :style="selectedProductId === {{ $product->id }} ? 'box-shadow: 0 0 0 3px #3b82f6;' : ''"
+    @click="selectedProductId = {{ $product->id }}; addToCart({{ $product->id }}, '{{ $product->name }}', {{ $product->price }})"
+>
         
         {{-- Flexbox agar nama produk dan badge sejajar --}}
         <div class="flex justify-between items-start mb-1">
