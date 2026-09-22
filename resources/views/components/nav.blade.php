@@ -1,11 +1,21 @@
-<nav class="bg-slate-900 text-white px-4 py-3 flex gap-4">
-    <span class="font-semibold">Simple POS</span>
+<nav class="bg-slate-900 text-white px-4 py-3">
+    <div style="display: flex; align-items: center;">
 
-    <a href="{{ route('pos.create') }}" class="hover:underline">
-        Kasir
-    </a>
+        <span class="font-semibold text-lg">
+            Simple POS
+        </span>
 
-    <a href="{{ route('transactions.index') }}" class="hover:underline">
-        Transaksi
-    </a>
+        <a href="{{ route('pos.create') }}"
+           style="margin-left: 30px;"
+           class="{{ request()->routeIs('pos.create') ? 'text-white underline' : 'hover:text-blue-400 hover:underline' }}">
+            Kasir
+        </a>
+
+        <a href="{{ route('transactions.index') }}"
+           style="margin-left: 30px;"
+           class="{{ request()->routeIs('transactions.index') ? 'text-white underline' : 'hover:text-blue-400 hover:underline' }}">
+            Transaksi
+        </a>
+
+    </div>
 </nav>
