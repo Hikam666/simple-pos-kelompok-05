@@ -3,14 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use Illuminate\Support\Facades\DB;
+use App\Models\Transaction;
 
 class TransactionController extends Controller
 {
     public function create()
     {
         $products = Product::where('stock', '>', 0)->get();
-        return view('pos.create', ['products' => $products]);
+
+        return view('pos.create', [
+            'products' => $products
+        ]);
     }
 
     public function store()
@@ -20,14 +23,9 @@ class TransactionController extends Controller
 
     public function index()
     {
-        $transactions = DB::table('transactions')
-            ->whereBetween('created_at', ['2026-09-01', '2026-09-30'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $transactions = Transaction::latest()->paginate(15);
 
-        return view('transactions.index', [
-            'transactions' => $transactions
-        ]);
+        return view('transactions.index', compact('transactions'));
     }
 
     public function show(string $id)

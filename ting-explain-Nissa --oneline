@@ -1,0 +1,20 @@
+*   [33m52f3078[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfitur-listing-explain-Nissa[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/fitur-listing-explain-Nissa[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m Merge pull request #19 from Hikam666/ghozali-is-active
+[31m|[m[32m\[m  
+[31m|[m * [33mac4e2b1[m[33m ([m[1;31morigin/ghozali-is-active[m[33m)[m tambah kolom is_active pada products dan update seeder
+[31m|[m[31m/[m  
+*   [33md4d4407[m Merge pull request #18 from Hikam666/add-product-sku
+[33m|[m[34m\[m  
+[33m|[m * [33m752d8a7[m[33m ([m[1;31morigin/add-product-sku[m[33m)[m tambah kolom sku pada products
+[33m|[m[33m/[m  
+*   [33ma27189d[m Merge pull request #17 from Hikam666/index-transaction-details
+[35m|[m[36m\[m  
+[35m|[m * [33m09babfc[m[33m ([m[1;31morigin/index-transaction-details[m[33m)[m tambah index pada transaction_details product_id
+[35m|[m[35m/[m  
+*   [33mc171962[m Merge pull request #16 from Hikam666/product-model
+[1;31m|[m[1;32m\[m  
+[1;31m|[m * [33mc817c93[m[33m ([m[1;31morigin/product-model[m[33m)[m ganti data hardcoded dengan model product
+[1;31m|[m[1;31m/[m  
+*   [33m61b51c7[m Merge pull request #15 from Hikam666/seeder-and-index-nissa
+[1;33m|[m[1;34m\[m  
+[1;33m|[m * [33md029b50[m[33m ([m[1;31morigin/seeder-and-index[m[33m, [m[1;32mseeder-and-index[m[33m)[m tambah seeder skala nyata dan index foreign key
+[1;33m|[m[1;33m/[m  
