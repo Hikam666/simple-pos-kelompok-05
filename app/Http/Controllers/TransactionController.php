@@ -9,7 +9,8 @@ class TransactionController extends Controller
 {
     public function create()
     {
-        $products = Product::where('stock', '>', 0)->get();
+        // Pastikan menggunakan paginate(12), BUKAN get()
+        $products = Product::where('stock', '>', 0)->paginate(12);
 
         return view('pos.create', [
             'products' => $products
@@ -21,14 +22,12 @@ class TransactionController extends Controller
         return 'Transaksi disimpan (belum ada logika penyimpanan)';
     }
 
-public function index()
-{
-    $transactions = Transaction::with(['details.product', 'user'])
-        ->latest()
-        ->paginate(15);
+    public function index()
+    {
+        $transactions = Transaction::with('details.product')->latest()->paginate(12);
 
-    return view('transactions.index', compact('transactions'));
-}
+        return view('transactions.index', compact('transactions'));
+    }
 
     public function show(string $id)
     {
