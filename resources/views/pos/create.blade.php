@@ -3,65 +3,51 @@
 @section('title', 'Kasir')
 
 @section('content')
-<h1 class="text-lg font-semibold mb-4">Transaksi Kasir</h1>
+    <h1 class="text-lg font-semibold mb-4">Transaksi Kasir</h1>
 
-<div x-data="{
-    cart: [],
-    selectedProductId: null,
-    addToCart(id, name, price) {
-        this.cart.push({ id, name, price });
-    },
-    removeFromCart(id) {
-        this.cart = this.cart.filter(item => item.id !== id);
-    },
-    subtotal() {
-        return this.cart.reduce((sum, item) => sum + item.price, 0);
-    }
-}">
-    {{-- Grid Produk --}}
-    <div class="grid grid-cols-3 gap-4">
-        @foreach ($products as $product)
-        <div
-            class="border rounded-md p-3 cursor-pointer transition-all"
-            :style="selectedProductId === {{ $product->id }} ? 'box-shadow: 0 0 0 3px #3b82f6;' : ''"
-            @click="selectedProductId = {{ $product->id }}; addToCart({{ $product->id }}, '{{ $product->name }}', {{ $product->price }})"
-        >
-            {{-- Flexbox agar nama produk dan badge sejajar --}}
-            <div class="flex justify-between items-start mb-1">
-                <p class="font-medium">{{ $product->name }}</p>
-                
-                {{-- Logika Blade untuk memunculkan badge jika stok di bawah 10 --}}
-                @if($product->stock < 10)
-                    <span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-100 text-amber-700">
-                        Stok Menipis
-                    </span>
-                @endif
-            </div>
-            
-            <p class="text-sm text-slate-500">Rp {{ number_format($product->price) }}</p>
+    @if (session('success'))
+        <div class="bg-green-50 text-green-700 p-3 rounded-md mb-4">
+            {{ session('success') }}
         </div>
-        @endforeach
-    </div>
+    @endif
 
-    {{-- Navigasi Paginasi --}}
-    <div class="mt-4">
-        {{ $products->links() }}
-    </div>
+    @error('items')
+        <div class="bg-red-50 text-red-700 p-3 rounded-md mb-4">{{ $message }}</div>
+    @enderror
 
-    {{-- Ringkasan Keranjang --}}
-    <div class="mt-4 border-t pt-3">
-        <template x-for="item in cart" :key="item.id">
-            <div class="flex items-center justify-between py-1 border-b">
-                <p x-text="item.name + ' - Rp ' + item.price"></p>
-                <button type="button"
-                        class="text-xs text-red-600 hover:text-red-800 font-semibold ml-2"
-                        @click="removeFromCart(item.id)">
-                    Hapus
-                </button>
-            </div>
-        </template>
+    <form method="POST" action="{{ route('transactions.store') }}" x-data="{
+        cart: [],
+        addToCart(id, name, price) {
+            this.cart.push({ id, name, price });
+        },
+        subtotal() {
+            return this.cart.reduce((sum, item) => sum + item.price, 0);
+        }
+    }">
+        @csrf
 
-        <p class="font-semibold mt-2">Subtotal: Rp <span x-text="subtotal()"></span></p>
-    </div>
-</div>
+        <div class="grid grid-cols-3 gap-4">
+            @foreach ($products as $product)
+                <div class="border rounded-md p-3 cursor-pointer"
+                     @click="addToCart({{ $product->id }}, '{{ $product->name }}', {{ $product->price }})">
+                    <p class="font-medium">{{ $product->name }}</p>
+                    <p class="text-sm text-slate-500">Rp {{ number_format($product->price) }}</p>
+                </div>
+            @endforeach
+        </div>
+
+        <div class="mt-4 border-t pt-3">
+            <template x-for="(item, index) in cart" :key="index">
+                <div>
+                    <p x-text="item.name + ' - Rp ' + item.price"></p>
+                    <input type="hidden" :name="'items[' + index + '][product_id]'" :value="item.id">
+                    <input type="hidden" :name="'items[' + index + '][qty]'" value="1">
+                </div>
+            </template>
+
+            <p class="font-semibold mt-2">Subtotal: Rp <span x-text="subtotal()"></span></p>
+
+            <button type="submit" class="mt-3 bg-blue-600 text-white px-4 py-2 rounded-md">Bayar</button>
+        </div>
+    </form>
 @endsection
