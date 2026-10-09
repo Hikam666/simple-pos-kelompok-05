@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Product;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreTransactionRequest extends FormRequest
@@ -18,5 +19,27 @@ class StoreTransactionRequest extends FormRequest
             'items.*.product_id' => ['required', 'exists:products,id'],
             'items.*.qty' => ['required', 'integer', 'min:1'],
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $items = $this->input('items');
+
+            if (is_array($items)) {
+                foreach ($items as $item) {
+                    if (isset($item['product_id']) && isset($item['qty'])) {
+                        $product = Product::find($item['product_id']);
+                        
+                        if ($product && $item['qty'] > $product->stock) {
+                            $validator->errors()->add(
+                                'items', 
+                                "Stok produk '{$product->name}' tidak mencukupi (diminta: {$item['qty']}, sisa: {$product->stock})."
+                            );
+                        }
+                    }
+                }
+            }
+        });
     }
 }
