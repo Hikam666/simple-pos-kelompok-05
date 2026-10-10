@@ -31,7 +31,9 @@
                 Masuk
             </button>
         </form>
-
+        <p class="mt-4 text-sm">
+            <a href="{{ route('info') }}" class="text-slate-600 underline">Tentang aplikasi ini</a>
+        </p>
         <p class="mt-6 text-xs text-slate-500">
             Akun demo: admin@pos.test atau kasir@pos.test, kata sandi <code>password</code>.
         </p>
