@@ -8,11 +8,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EnsureUserHasRole
 {
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-       if (! $request->user() || $request->user()->role != $role) {
-        abort(403, "Halaman ini hanya untuk peran {$role}.");
-    }
+        // Gunakan in_array untuk mengecek apakah role user ada di dalam daftar $roles
+        if (! $request->user() || ! in_array($request->user()->role, $roles)) {
+            $peran = implode(' atau ', $roles);
+            abort(403, "Akses ditolak. Halaman ini hanya untuk peran: {$peran}.");
+        }
 
         return $next($request);
     }
