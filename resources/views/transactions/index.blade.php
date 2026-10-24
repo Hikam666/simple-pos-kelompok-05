@@ -1,11 +1,22 @@
+
 @extends('layouts.app')
 @section('title', 'Riwayat Transaksi')
+
 @section('content')
-<h1 class="text-lg font-semibold mb-4">Riwayat Transaksi</h1>
+<div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+    <h1 class="text-lg font-semibold">Riwayat Transaksi</h1>
+
+    <button
+        type="button"
+        id="downloadExcel"
+        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md"
+    >
+        Download Excel
+    </button>
+</div>
 
 @foreach ($transactions as $transaction)
     <div class="border rounded-md p-3 mb-3">
-
         <p class="font-medium">
             Transaksi #{{ $transaction->id }}
             &middot;
@@ -26,7 +37,6 @@
                 </li>
             @endforeach
         </ul>
-
     </div>
 @endforeach
 
@@ -34,4 +44,48 @@
     {{ $transactions->links() }}
 </div>
 
+<script>
+document.getElementById('downloadExcel').addEventListener('click', async function () {
+    const button = this;
+    button.disabled = true;
+    button.textContent = 'Mengunduh...';
+
+    try {
+        const url = new URL(
+            @json(route('reports.export.xlsx')),
+            window.location.origin
+        );
+
+        // Ikutkan filter tanggal jika tersedia di URL.
+        const params = new URLSearchParams(window.location.search);
+        params.forEach((value, key) => url.searchParams.set(key, value));
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error('Unduhan gagal');
+        }
+
+        const blob = await response.blob();
+        const downloadUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+
+        link.href = downloadUrl;
+        link.download = 'laporan-penjualan.xlsx';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
+
+        alert('Berhasil! Laporan Excel berhasil diunduh.');
+    } catch (error) {
+        alert('Gagal mengunduh laporan Excel. Silakan coba lagi.');
+        console.error(error);
+    } finally {
+        button.disabled = false;
+        button.textContent = 'Download Excel';
+    }
+});
+</script>
 @endsection
