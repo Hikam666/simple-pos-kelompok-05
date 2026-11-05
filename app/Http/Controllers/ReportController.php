@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Exports\SalesReportExport;
+use App\Jobs\ProcessProductImport;
 use App\Models\Category;
+use App\Models\ImportError;
 use App\Models\Transaction;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
@@ -75,6 +78,26 @@ class ReportController extends Controller
         ]);
 
         return $pdf->download('laporan-penjualan.pdf');
+    }
+
+    public function importForm(): View
+    {
+        $importErrors = ImportError::latest()->take(50)->get();
+
+        return view('reports.import', compact('importErrors'));
+    }
+
+    public function import(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'csv' => ['required', 'file', 'mimes:csv,txt'],
+        ]);
+
+        $path = $request->file('csv')->store('imports');
+
+        ProcessProductImport::dispatch($path);
+
+        return back()->with('success', 'Import sedang diproses di background.');
     }
 
     private function resolveDateRange(Request $request): array
