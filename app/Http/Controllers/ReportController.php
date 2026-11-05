@@ -7,6 +7,7 @@ use App\Jobs\ProcessProductImport;
 use App\Models\Category;
 use App\Models\ImportError;
 use App\Models\Transaction;
+use App\Imports\ProductsImport;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -98,6 +99,16 @@ class ReportController extends Controller
         ProcessProductImport::dispatch($path);
 
         return back()->with('success', 'Import sedang diproses di background.');
+    }
+    public function importExcel(Request $request): RedirectResponse
+    {
+         $request->validate([
+            'excel_file' => ['required', 'file', 'mimes:csv,txt'],
+        ]);
+
+        Excel::import(new ProductsImport, $request->file('excel_file'));
+
+        return back()->with('success', 'Import menggunakan Laravel Excel berhasil.');
     }
 
     private function resolveDateRange(Request $request): array
