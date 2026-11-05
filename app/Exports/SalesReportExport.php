@@ -1,24 +1,20 @@
 <?php
+
 namespace App\Exports;
-use App\Models\Transaction;
-use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\FromCollection;
+
+use Illuminate\Database\Eloquent\Builder;
+use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class SalesReportExport implements FromCollection, WithHeadings, WithMapping
+class SalesReportExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize
 {
-    public function __construct(
-        private $from,
-        private $to
-    ) {}
+    public function __construct(private Builder $query) {}
 
-    public function collection(): Collection
+    public function query(): Builder
     {
-        return Transaction::with('user')
-            ->whereBetween('created_at', [$this->from, $this->to])
-            ->orderByDesc('created_at')
-            ->get();
+        return $this->query;
     }
 
     public function headings(): array
@@ -30,8 +26,8 @@ class SalesReportExport implements FromCollection, WithHeadings, WithMapping
     {
         return [
             $transaction->id,
-            $transaction->created_at?->format('Y-m-d H:i:s'),
-            $transaction->user->name ?? '-',
+            $transaction->created_at->format('Y-m-d H:i:s'),
+            $transaction->user->name,
             $transaction->total,
         ];
     }
