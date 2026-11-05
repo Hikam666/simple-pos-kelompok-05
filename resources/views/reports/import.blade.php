@@ -11,7 +11,7 @@
     </div>
 @endif
 
-<form method="POST" action="{{ route('import.store') }}" enctype="multipart/form-data" class="max-w-md">
+<form method="POST" action="{{ route('import.store') }}" enctype="multipart/form-data" class="max-w-md mb-8">
     @csrf
 
     <label class="block mb-3">
@@ -26,4 +26,39 @@
 
     <button type="submit" class="bg-slate-900 text-white px-4 py-2 rounded-md text-sm">Import</button>
 </form>
+
+<div class="mt-8 border-t pt-6">
+    <h2 class="text-base font-semibold mb-3">Catatan Baris Import Cacat / Gagal</h2>
+
+    @if ($importErrors->isEmpty())
+        <div class="bg-slate-50 text-slate-600 p-3 rounded-md text-sm">
+            Belum ada catatan baris cacat.
+        </div>
+    @else
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                    <tr class="border-b bg-slate-50">
+                        <th class="py-2 px-3">No</th>
+                        <th class="py-2 px-3">Baris CSV</th>
+                        <th class="py-2 px-3">Data Baris</th>
+                        <th class="py-2 px-3">Pesan Error</th>
+                        <th class="py-2 px-3">Waktu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($importErrors as $index => $err)
+                    <tr class="border-b hover:bg-slate-50">
+                        <td class="py-2 px-3">{{ $index + 1 }}</td>
+                        <td class="py-2 px-3 font-mono font-semibold text-red-600">Baris {{ $err->row_number }}</td>
+                        <td class="py-2 px-3 font-mono text-xs max-w-xs truncate" title="{{ $err->raw_data }}">{{ $err->raw_data ?? '-' }}</td>
+                        <td class="py-2 px-3 text-red-700">{{ $err->error_message }}</td>
+                        <td class="py-2 px-3 text-slate-500 text-xs">{{ $err->created_at->format('Y-m-d H:i:s') }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    @endif
+</div>
 @endsection
