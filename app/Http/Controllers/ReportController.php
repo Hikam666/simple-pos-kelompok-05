@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\DB;
 use App\Exports\SalesReportExport;
 use App\Jobs\ProcessProductImport;
 use App\Models\Category;
@@ -55,31 +56,54 @@ class ReportController extends Controller
     }
 
     public function exportExcel(Request $request): BinaryFileResponse
-    {
-        [$from, $to] = $this->resolveDateRange($request);
+        {
+            [$from, $to] = $this->resolveDateRange($request);
         $categoryId = $request->query('category_id');
 
-        return Excel::download(
+            return Excel::download(
             new SalesReportExport($this->filteredQuery($from, $to, $categoryId)),
             'laporan-penjualan.xlsx',
-        );
-    }
+            );
+        }
 
     public function exportPdf(Request $request): Response
-    {
-        [$from, $to] = $this->resolveDateRange($request);
-        $categoryId = $request->query('category_id');
+{
+    [$from, $to] = $this->resolveDateRange($request);
+    $categoryId = $request->query('category_id');
 
-        $pdf = Pdf::loadView('reports.pdf', [
-            'totalPenjualan' => $this->filteredQuery($from, $to, $categoryId)->sum('total'),
-            'jumlahTransaksi' => $this->filteredQuery($from, $to, $categoryId)->count(),
-            'transactions' => $this->filteredQuery($from, $to, $categoryId)->latest()->limit(50)->get(),
-            'from' => $from->toDateString(),
-            'to' => $to->toDateString(),
-        ]);
+    // Query transaksi sesuai periode dan kategori
+    $transactionsQuery = $this->filteredQuery($from, $to, $categoryId);
 
-        return $pdf->download('laporan-penjualan.pdf');
-    }
+    // Mengambil 10 produk terlaris berdasarkan jumlah terjual
+    $topProducts = DB::table('transaction_details')
+        ->join('products', 'transaction_details.product_id', '=', 'products.id')
+        ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
+        ->whereBetween('transactions.created_at', [$from, $to])
+        ->when($categoryId, function ($query, $categoryId) {
+            $query->where('products.category_id', $categoryId);
+        })
+        ->select(
+            'products.id',
+            'products.name',
+            DB::raw('SUM(transaction_details.qty) as total_qty'),
+            DB::raw('SUM(transaction_details.subtotal) as total_revenue')
+        )
+        ->groupBy('products.id', 'products.name')
+        ->orderByDesc('total_qty')
+        ->limit(10)
+        ->get();
+
+    $pdf = Pdf::loadView('reports.pdf', [
+        'totalPenjualan' => $transactionsQuery->sum('total'),
+        'jumlahTransaksi' => $transactionsQuery->count(),
+        'transactions' => $transactionsQuery->latest()->limit(50)->get(),
+        'topProducts' => $topProducts,
+        'from' => $from->toDateString(),
+        'to' => $to->toDateString(),
+    ]);
+
+    return $pdf->download('laporan-penjualan.pdf');
+}
 
     public function importForm(): View
     {
