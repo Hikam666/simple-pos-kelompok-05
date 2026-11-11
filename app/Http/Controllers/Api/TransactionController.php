@@ -6,6 +6,10 @@ use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\TransactionController; // <-- PASTI KAN BARIS INI ADA
+use Illuminate\Support\Facades\Route;
 class TransactionController extends Controller
 {
 public function store(StoreTransactionRequest $request)
