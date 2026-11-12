@@ -44,6 +44,11 @@ class ApiClientDemo extends Command
         }
 
         $token = $login->json('token');
+        if (! is_string($token) || $token === '') {
+        $this->error('Login gagal: token tidak diterima.');
+        return self::FAILURE;
+      }
+
         $this->info("Login berhasil, token: {$token}");
 
         $products = Http::acceptJson()->withToken($token)->retry(3, $backoff, $when, throw: false)->get("{$baseUrl}/api/v1/products");
