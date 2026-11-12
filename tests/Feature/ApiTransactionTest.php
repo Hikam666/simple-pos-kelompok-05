@@ -37,7 +37,7 @@ class ApiTransactionTest extends TestCase
 
     public function test_guest_cannot_create_transaction(): void
     {
-        $this->postJson('/api/transactions', $this->payload())
+        $this->postJson('/api/v1/transactions', $this->payload())
             ->assertUnauthorized(); // 401
     }
 
@@ -49,7 +49,7 @@ class ApiTransactionTest extends TestCase
         );
 
         $this->postJson(
-            '/api/transactions',
+            '/api/v1/transactions',
             $this->payload(),
             ['Idempotency-Key' => 'k1']
         )->assertForbidden(); // 403
@@ -63,7 +63,7 @@ class ApiTransactionTest extends TestCase
         );
 
         $this->postJson(
-            '/api/transactions',
+            '/api/v1/transactions',
             [
                 'items' => [
                     [
@@ -89,7 +89,7 @@ class ApiTransactionTest extends TestCase
         $headers = ['Idempotency-Key' => 'k3'];
 
         $first = $this->postJson(
-            '/api/transactions',
+            '/api/v1/transactions',
             $payload,
             $headers
         )
@@ -97,7 +97,7 @@ class ApiTransactionTest extends TestCase
             ->assertJsonPath('data.total', 30000);
 
         $this->postJson(
-            '/api/transactions',
+            '/api/v1/transactions',
             $payload,
             $headers
         )
@@ -122,7 +122,7 @@ class ApiTransactionTest extends TestCase
             ['transactions:read']
         );
 
-        $this->getJson("/api/transactions/{$transaction->id}")
+        $this->getJson("/api/v1/transactions/{$transaction->id}")
             ->assertForbidden(); // 403
 
         Sanctum::actingAs(
@@ -130,7 +130,7 @@ class ApiTransactionTest extends TestCase
             ['transactions:read']
         );
 
-        $this->getJson("/api/transactions/{$transaction->id}")
+        $this->getJson("/api/v1/transactions/{$transaction->id}")
             ->assertOk()
             ->assertJsonPath('data.id', $transaction->id);
     }
