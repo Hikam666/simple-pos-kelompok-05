@@ -6,10 +6,9 @@ use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
-
 Route::prefix('v1')->group(function () {
     // Route Publik (Tidak butuh Token Sanctum)
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
     Route::get('/categories', [CategoryController::class, 'index']);
 
     // Route Terproteksi (Butuh Token Sanctum)
